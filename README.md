@@ -1,241 +1,165 @@
- Cyber Mitra - AI-Powered Legal Assistant
+# Cyber Mitra - AI Legal Assistant
 
-Cyber Mitra is a sophisticated AI-powered legal assistant designed to help users understand legal procedures and find relevant laws through natural conversation. This frontend implementation provides a responsive, user-friendly interface for interacting with the legal AI system.
+Cyber Mitra is an AI-powered legal assistant that helps users understand legal procedures and information through natural conversation. Built with a sophisticated RAG (Retrieval Augmented Generation) architecture, it combines a modern web interface with powerful legal information retrieval capabilities.
 
-![Cyber Mitra Screenshot](screenshot.png)
+![AI Legal Assistant Screenshot](static/assets/images/ai-illustration.svg)
 
 ## Features
 
 ### User Interface
-- **Professional Legal-Themed UI**: Elegant design with sophisticated color scheme inspired by legal profession
-- **Interactive Chat Interface**: Modern chat UI with message bubbles, typing indicators, and user avatars
-- **Web Search Integration**: Toggle between regular chat and web search (RAG) modes
-- **File Upload**: Support for document uploads to analyze legal documents
-- **Chat History**: View and manage previous conversations
+- **Professional Legal Theme**: Clean, sophisticated design with law-inspired color scheme
+- **Interactive Chat**: Real-time messaging with typing indicators and message history
+- **Web Search Integration**: Toggle between chat and web search modes
+- **Document Upload**: Support for legal document analysis
+- **Responsive Design**: Optimized for desktop, tablet, and mobile devices
 - **Dark Mode**: Toggle between light and dark themes
-- **Responsive Design**: Optimized for all device sizes (desktop, tablet, mobile)
-- **3D Visual Elements**: Subtle animated elements for visual interest
+- **Message History**: View and manage previous conversations
 
 ### Technical Features
-- **HTML5 Semantic Structure**: Clean, accessible markup
-- **CSS3 Advanced Styling**: Variables, flexbox, grid, and animations
-- **Modern JavaScript**: ES6+ features, event handling, DOM manipulation
-- **SVG Illustrations**: Custom legal-themed graphics
-- **About Page**: Separate page showcasing company information and mission
+- **RAG Architecture**: Uses FAISS for efficient document retrieval
+- **Local LLM Integration**: Runs on your hardware with Ollama using the Mistral model
+- **Vector Search**: Semantic search using HuggingFace embeddings
+- **MongoDB Storage**: Persistent storage for conversations and user data
+- **Session Management**: Secure user authentication and session handling
+- **Performance Monitoring**: Built-in evaluation tools for RAG performance
 
 ## Project Structure
 
 ```
-cyber-mitra-frontend/
-│
-├── index.html               # Main HTML file for chat application
-├── about.html               # About page with company information
-├── assets/                  # Contains all static assets
-│   ├── css/
-│   │   ├── main.css         # Main stylesheet with global styles
-│   │   ├── landing.css      # Styles for landing/login page
-│   │   ├── chat.css         # Styles for chat interface
-│   │   ├── about.css        # Styles for about page
-│   │   └── responsive.css   # Media queries for responsive design
-│   │
-│   ├── js/
-│   │   ├── app.js           # Main JavaScript file
-│   │   ├── auth.js          # Authentication functionality
-│   │   ├── chat.js          # Chat functionality
-│   │   ├── ui.js            # UI interactions
-│   │   └── about.js         # About page functionality
-│   │
-│   └── images/              # Image assets
-│       ├── scales.svg       # Scales of justice
-│       ├── logo.svg         # Cyber Mitra logo
-│       ├── law-books.svg    # Law books illustration
-│       ├── ai-illustration.svg # AI illustration for about page
-│       ├── legal-background.svg # Background for CTA section
-│       └── favicon.ico      # Site favicon
-│
-└── README.md                # Documentation
+ai_legal/
+├── app.py                    # Main Flask application
+├── Ingestion.py              # Document ingestion and indexing
+├── evaluate_rag.py           # RAG evaluation tools
+├── enhanced_evaluation.py    # Extended evaluation features
+├── static/                   # Static assets
+│   ├── assets/
+│   │   ├── css/              # Stylesheets
+│   │   ├── js/               # JavaScript files
+│   │   └── images/           # UI assets
+└── templates/                # HTML templates
+    ├── index.html            # Main chat interface
+    └── about.html            # About page
 ```
 
-## Key Components
+## Installation
 
-### 1. Chat Interface
-The core of the application is the chat interface where users interact with the AI assistant:
+### Prerequisites
+- Python 3.8+
+- MongoDB
+- Ollama
 
-```html
-
-    
-        
-            
-            Web Search
-        
-    
-    
-        
-        
-            
-                
-                
-            
-            
-                
-            
-            
-                
-            
-        
-    
-    
-        
-            
-            filename.pdf
-        
-        
-            
-        
-    
-    
-        Cyber Mitra is typing
-        
-            
-            
-            
-        
-    
-
+### Step 1: Clone the repository
+```bash
+git clone https://github.com/yourusername/ai_legal.git
+cd ai_legal
 ```
 
-### 2. File Upload Functionality
-Users can upload legal documents for analysis:
-
-```javascript
-// File upload handling
-const fileUpload = document.getElementById('file-upload');
-const filePreview = document.getElementById('file-preview');
-const fileName = document.getElementById('file-name');
-const removeFile = document.getElementById('remove-file');
-let uploadedFile = null;
-
-// Handle file selection
-fileUpload.addEventListener('change', (e) => {
-    if (e.target.files.length > 0) {
-        uploadedFile = e.target.files[0];
-        fileName.textContent = uploadedFile.name;
-        filePreview.style.display = 'flex';
-    }
-});
-
-// Handle file removal
-removeFile.addEventListener('click', () => {
-    uploadedFile = null;
-    fileUpload.value = '';
-    filePreview.style.display = 'none';
-});
-
-// Override sendMessage function to include file handling
-const originalSendMessage = sendMessage;
-sendMessage = function() {
-    if (uploadedFile) {
-        // Handle file upload logic
-        // ...
-    } else {
-        // Regular message handling
-        originalSendMessage();
-    }
-};
+### Step 2: Install required packages
+```bash
+pip install -r requirements.txt
 ```
 
-### 3. Web Search Integration (RAG)
-Toggle between regular chat and web search mode:
+### Step 3: Install and start MongoDB
+Follow the [MongoDB Installation Guide](https://docs.mongodb.com/manual/installation/) for your operating system.
 
-```javascript
-function toggleWebSearch() {
-    isWebSearchActive = !isWebSearchActive;
-    
-    if (isWebSearchActive) {
-        webSearchBtn.style.backgroundColor = '#a68657';
-        messageInput.placeholder = "Enter your web search query...";
-    } else {
-        webSearchBtn.style.backgroundColor = '';
-        messageInput.placeholder = "Type your legal question here...";
-    }
-    
-    messageInput.focus();
-}
+Start MongoDB:
+```bash
+mongod
 ```
 
-### 4. About Page with Company Information
-Separate page showcasing Boehm Tech and Cyber Mitra information:
+### Step 4: Install and configure Ollama
+Install Ollama following the instructions for your operating system from [Ollama's website](https://ollama.ai/):
 
-```html
-
-    
-        Meet Cyber Mitra
-        
-        Cyber Mitra is our flagship legal AI assistant, designed to democratize access to legal information through natural conversation. Built on state-of-the-art large language models and fine-tuned on over 8,500 legal query-answer pairs.
-        
-    
-
+```bash
+curl https://ollama.ai/install.sh | sh
 ```
 
-## Getting Started
-
-1. Clone the repository:
-   ```
-   git clone https://github.com/Atechsol/legal_assistant.git
-   ```
-
-2. Navigate to the project directory:
-   ```
-   cd legal_assistant
-   ```
-
-3. Open `index.html` in your browser to use the application.
-
-## Development Notes
-
-- The frontend is designed to connect to a backend API for the actual AI functionality
-- For demonstration purposes, the chat responses are simulated with predefined answers
-- Local storage is used to maintain user session data in the demo
-- The file upload functionality is ready to be connected to a backend processor
-
-## Customization
-
-You can easily customize the appearance by modifying the CSS variables in `main.css`:
-
-```css
-:root {
-    --primary-color: #2d3748;
-    --secondary-color: #8b4513;
-    --accent-color: #b69566;
-    --light-accent: #e4d4ba;
-    --dark-bg: #1a202c;
-    --text-color: #333;
-    --light-text: #f7f7f7;
-    --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    --transition: all 0.3s ease;
-    --border-radius: 8px;
-}
+Pull the Mistral model:
+```bash
+ollama pull mistral
 ```
 
-## Browser Compatibility
+Start Ollama:
+```bash
+ollama serve
+```
 
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
-- Opera (latest)
-- Mobile browsers (iOS Safari, Android Chrome)
+### Step 5: Set up environment variables
+```bash
+cp .env.example .env
+```
+Edit the `.env` file with your specific configuration settings.
 
-## About Boehm Tech
+### Step 6: Run the application
+```bash
+python app.py
+```
 
-Boehm Tech is a student-led software startup dedicated to crafting impactful, AI-powered solutions for real-world problems. The company specializes in areas such as Generative AI, Machine Learning, NLP, and intelligent automation, with applications spanning healthcare, education, and enterprise tools.
+### Step 7: Access the application
+Open `http://localhost:5000` in your browser, create an account or use test credentials, and start chatting with the AI legal assistant.
+
+## Development Guide
+
+### Adding New Features
+- Add routes in `app.py`
+- Add frontend code in `static/assets/js/`
+- Add styles in `static/assets/css/`
+- Update templates in `templates/`
+
+### RAG Components
+- Document ingestion: Use `Ingestion.py`
+- Evaluation: Use `evaluate_rag.py` and `enhanced_evaluation.py`
+- Modify prompts in `app.py` under `prompt_template`
+
+### Running Evaluations
+```bash
+# Run RAG evaluation
+python evaluate_rag.py
+
+# View detailed metrics
+python enhanced_evaluation.py
+```
+
+## Configuration
+
+Key configuration options in `.env`:
+```
+MONGO_URI=mongodb://localhost:27017/legal_rag_db
+FLASK_SECRET_KEY=your_secret_key
+FAISS_INDEX_DIR=./faiss_index_legal
+EMBEDDING_MODEL_NAME=sentence-transformers/all-MiniLM-L6-v2
+OLLAMA_MODEL_NAME=mistral
+```
+
+## Ollama Integration Details
+
+Cyber Mitra uses Ollama to run the Mistral model locally on your hardware, providing:
+
+- **Privacy**: All legal queries and responses remain on your system
+- **No API Costs**: Avoid spending on commercial LLM APIs
+- **Customization**: Fine-tune model parameters for legal domain
+- **Offline Usage**: Full functionality without internet access once models are downloaded
+
+## Contributing
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## Security Notes
+- **Authentication**: Currently uses basic authentication - enhance for production
+- **Passwords**: Implement proper password hashing before production use
+- **Session Management**: Uses Flask sessions - consider additional security measures
+- **API Protection**: Add rate limiting and additional security headers
 
 ## License
-
-[MIT License](LICENSE)
+MIT License
 
 ## Credits
-
 - Developed by Boehm Tech
-- Icons by [Font Awesome](https://fontawesome.com/)
-- UI/UX Design by Boehm Tech Design Team
+- Icons by Font Awesome
+- UI Components by Boehm Tech Design Team
+
+## Support
+For support, email support@boehmtech.com or open an issue in this repository.
