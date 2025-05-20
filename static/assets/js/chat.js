@@ -24,11 +24,11 @@ const API_ASK_URL = '/chat';
 // Sample data for chat history (STILL DEMO, NOT CONNECTED TO BACKEND PERSISTENCE)
 // This data is only used to populate the sidebar list visually.
 const sampleChats = [
-    { id: 1, title: "Property law questions", timestamp: "2 hours ago", preview: "What are my rights as a tenant?" },
-    { id: 2, title: "Contract review assistance", timestamp: "Yesterday", preview: "Can you help me understand this NDA?" },
-    { id: 3, title: "Employment law advice", timestamp: "3 days ago", preview: "What are the legal working hours?" },
-    { id: 4, title: "Copyright infringement", timestamp: "1 week ago", preview: "Someone is using my work without permission" },
-    { id: 5, title: "Starting a business", timestamp: "2 weeks ago", preview: "What legal structure should I choose?" }
+    // { id: 1, title: "Property law questions", timestamp: "2 hours ago", preview: "What are my rights as a tenant?" },
+    // { id: 2, title: "Contract review assistance", timestamp: "Yesterday", preview: "Can you help me understand this NDA?" },
+    // { id: 3, title: "Employment law advice", timestamp: "3 days ago", preview: "What are the legal working hours?" },
+    // { id: 4, title: "Copyright infringement", timestamp: "1 week ago", preview: "Someone is using my work without permission" },
+    // { id: 5, title: "Starting a business", timestamp: "2 weeks ago", preview: "What legal structure should I choose?" }
 ];
 
 // Current chat state (used for UI, not for backend history management in this version)
@@ -235,30 +235,19 @@ function startNewChat() {
 /**
  * Send a message (INTEGRATED WITH FLASK BACKEND)
  */
+// Add a new API endpoint constant
+const API_WEB_SEARCH_URL = '/web_search'; // Add this near your existing API_ASK_URL constant
+
+// Update the sendMessage function
 async function sendMessage() {
     const message = messageInput ? messageInput.value.trim() : '';
-    // NOTE: File upload is not integrated with RAG in this version.
-    // The current file upload UI/logic remains a separate demo feature.
-    // const fileToSend = uploadedFile; // If you want to use the uploaded file logic
 
     if (message === '') {
-        // If there's an uploaded file but no text, you might still want to send.
-        // For this RAG integration, we only process text queries.
-        if (!uploadedFile) { // Only return if no text and no file
-             console.log("Empty message and no file.");
-             return;
+        if (!uploadedFile) {
+            console.log("Empty message and no file.");
+            return;
         }
-        // If there's a file but no text, you could send a default message or handle it separately.
-        // For now, we require text input for the RAG query.
-        console.log("File uploaded but no text message. RAG endpoint requires text query.");
-        // Clear file info as we are not sending it to the RAG endpoint
-        uploadedFile = null;
-        const fileUploadInput = document.getElementById('file-upload');
-        if(fileUploadInput) fileUploadInput.value = '';
-        const filePreviewDiv = document.getElementById('file-preview');
-        if(filePreviewDiv) filePreviewDiv.style.display = 'none';
-
-        return; // Stop if no text message provided for RAG
+        return;
     }
 
     // Create and append user message element
@@ -269,97 +258,57 @@ async function sendMessage() {
             <i class="fas fa-user"></i>
         </div>
         <div class="message-content">
-            <div class="message-text">${escapeHTML(message)}</div>`; // ✅ Escape user input
-    // If you want to show file info with the message (demo only)
-    if (uploadedFile) {
-         userMessageHTML += `<div class="uploaded-file">
-                                <i class="fas fa-file-alt"></i> ${escapeHTML(uploadedFile.name)}
-                              </div>`; // ✅ Escape filename
-    }
-    userMessageHTML += `<div class="message-info">
-                            <span>${getCurrentTime()}</span>
-                        </div>
-                    </div>`;
+            <div class="message-text">
+                ${isWebSearchActive ? '<i class="fas fa-globe"></i> ' : ''}${escapeHTML(message)}
+            </div>
+            <div class="message-info">
+                <span>${getCurrentTime()}</span>
+            </div>
+        </div>`;
     userMessageElement.innerHTML = userMessageHTML;
     if (messagesContainer) messagesContainer.appendChild(userMessageElement);
 
-
-    // Clear input and file info after appending the message
+    // Clear input and scroll
     if (messageInput) messageInput.value = '';
     autoResizeTextarea();
-    // Clear file info (the file isn't sent to the RAG endpoint)
-    uploadedFile = null;
-    const fileUploadInput = document.getElementById('file-upload');
-    if(fileUploadInput) fileUploadInput.value = '';
-    const filePreviewDiv = document.getElementById('file-preview');
-    if(filePreviewDiv) filePreviewDiv.style.display = 'none';
-
-
-    // Scroll to bottom of messages
     scrollToBottom();
 
-    // Show typing indicator if it exists
+    // Show typing indicator
     if (typingIndicator) typingIndicator.style.display = 'flex';
 
     try {
-        // Send message to Flask backend API
-        console.log(`Sending query to backend: ${message}`);
-        const response = await fetch(API_ASK_URL, {
+        // Choose API endpoint based on web search mode
+        const apiUrl = isWebSearchActive ? API_WEB_SEARCH_URL : API_ASK_URL;
+        
+        const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ query: message }), // Send the user query as JSON
+            body: JSON.stringify({ query: message })
         });
 
-        // Hide typing indicator immediately after receiving the response
         if (typingIndicator) typingIndicator.style.display = 'none';
-
 
         if (!response.ok) {
-            // Handle HTTP errors (e.g., 400, 500)
-            let errorDetails = `Status ${response.status}`;
-            try {
-                const errorData = await response.json(); // Try to parse error message from backend
-                 if (errorData.error) errorDetails += `: ${errorData.error}`;
-                 if (errorData.details) errorDetails += ` (${errorData.details})`;
-            } catch (jsonError) {
-                 console.error("Failed to parse error response JSON:", jsonError);
-                 // Keep default errorDetails
-            }
-            console.error('Backend API Error:', response.status, errorDetails);
-            appendBotMessage(`Sorry, I encountered an error while processing your request. ${errorDetails}`);
-        } else {
-            // Parse the JSON response from the backend
-             // ✅ CORRECTED: Backend returns 'response' key for the answer
-            const data = await response.json();
-            const answer = data.response || "Could not retrieve an answer.";
-            const sources = data.sources || []; // sources will be an array of objects
-
-            // Create and append bot message
-            appendBotMessage(answer, sources);
-
-            // NOTE: If this was a new chat, you might save it to history here via another backend API call
-            // if (currentChatId === null) {
-            //     saveNewChatToBackend(message, answer, sources); // Example function call
-            // }
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
 
+        const data = await response.json();
+        const answer = data.response || "Could not retrieve an answer.";
+        const sources = data.sources || [];
+
+        appendBotMessage(answer, sources);
+
     } catch (error) {
-        // Handle network errors (e.g., server is down)
-        console.error('Network or Fetch Error:', error);
-        // Hide typing indicator if a network error occurs before response
+        console.error('Error:', error);
         if (typingIndicator) typingIndicator.style.display = 'none';
-        appendBotMessage(`Sorry, I couldn't connect to the legal assistant service. Please try again later.`);
+        appendBotMessage(`Sorry, I encountered an error while processing your request. Please try again later.`);
     }
 
-    // Scroll to bottom again after adding the bot message
     scrollToBottom();
-
-    // Re-enable send button if disabled during sending (might not be necessary with async/await but good practice)
-     if (sendMessageBtn) sendMessageBtn.disabled = false;
+    if (sendMessageBtn) sendMessageBtn.disabled = false;
 }
-
 
 /**
  * Append a bot message to the messages container

@@ -421,7 +421,8 @@
     position: absolute;
     width: 120px;
     height: 150px;
-    left: 60px;
+    top: 380px;
+    left: 700px;
     bottom: 100px;
     transform-style: preserve-3d;
     animation: float 5s ease-in-out infinite reverse;
