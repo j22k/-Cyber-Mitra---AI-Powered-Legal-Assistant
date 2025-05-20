@@ -2,7 +2,7 @@
 
 Cyber Mitra is an AI-powered legal assistant that helps users understand legal procedures and information through natural conversation. Built with a sophisticated RAG (Retrieval Augmented Generation) architecture, it combines a modern web interface with powerful legal information retrieval capabilities.
 
-![AI Legal Assistant Screenshot](static/assets/images/ai-illustration.svg)
+![AI Legal Assistant Screenshot](static/assets/images/logo.svg)
 
 ## Features
 
